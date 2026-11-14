@@ -35,8 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -87,6 +89,7 @@ fun App(
     var useMemory by remember { mutableStateOf(true) }
     var notice by remember { mutableStateOf<String?>(null) }
     var readOnlyMap by remember { mutableStateOf(false) }
+    var focusPrompt by remember { mutableStateOf(false) }
     val selectedTask = selectedTaskId?.let(tasks::get)
     val taskList = tasks.values.toList()
 
@@ -164,11 +167,13 @@ fun App(
                     onReviewTabs = { filter = TaskHubFilter.ACTIVE_TABS; screen = AppScreen.TASKS },
                     onTaskClick = ::openTask,
                     onMemoryChange = { useMemory = it },
+                    focusPromptOnOpen = focusPrompt,
+                    onPromptFocusConsumed = { focusPrompt = false },
                 )
                 AppScreen.TASKS -> TasksScreen(
                     taskList, memories, tabs.values.toList(), filter, useMemory, connection.status, connection.message,
                     onBack = { screen = AppScreen.HOME },
-                    onNew = { screen = AppScreen.HOME },
+                    onNew = { focusPrompt = true; screen = AppScreen.HOME },
                     onTaskClick = ::openTask,
                     onTabClick = ::openTab,
                     onMemoryChange = { useMemory = it },
@@ -218,7 +223,15 @@ private fun HomeScreen(
     onVoice: () -> Unit, onPick: () -> Unit, onRemoveAttachment: (String) -> Unit,
     onReviewAll: () -> Unit, onReviewTabs: () -> Unit, onTaskClick: (TaskGraph) -> Unit,
     onMemoryChange: (Boolean) -> Unit,
+    focusPromptOnOpen: Boolean, onPromptFocusConsumed: () -> Unit,
 ) {
+    val promptFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(focusPromptOnOpen) {
+        if (focusPromptOnOpen) {
+            promptFocusRequester.requestFocus()
+            onPromptFocusConsumed()
+        }
+    }
     Column(Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -274,7 +287,7 @@ private fun HomeScreen(
         Surface(color = Charcoal, shape = RoundedCornerShape(22.dp), border = BorderStroke(1.dp, Border), modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(8.dp)) {
                 OutlinedTextField(
-                    value = prompt, onValueChange = onPromptChange, modifier = Modifier.fillMaxWidth(),
+                    value = prompt, onValueChange = onPromptChange, modifier = Modifier.fillMaxWidth().focusRequester(promptFocusRequester),
                     placeholder = { Text("Ask Laizysink anything…", color = Muted) }, minLines = 1, maxLines = 4,
                     shape = RoundedCornerShape(18.dp),
                 )

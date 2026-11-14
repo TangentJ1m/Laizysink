@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from uuid import uuid4
 
 from models import FreshnessTag, TemporalMemoryItem
@@ -24,8 +24,8 @@ class TemporalMemoryStore:
         key: str,
         value: str,
         *,
-        event_start_date=None,
-        event_end_date=None,
+        event_start_date: date | None = None,
+        event_end_date: date | None = None,
     ) -> TemporalMemoryItem:
         item = TemporalMemoryItem(
             id=f"mem_{uuid4().hex[:10]}",

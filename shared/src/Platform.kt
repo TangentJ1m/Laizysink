@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 
 interface Platform {
     val name: String
+    val backendWebSocketUrl: String
 }
 
 expect fun getPlatform(): Platform

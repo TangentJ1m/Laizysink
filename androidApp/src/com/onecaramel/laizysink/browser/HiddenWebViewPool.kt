@@ -36,6 +36,11 @@ class HiddenWebViewPool(context: Context) {
     var visibleTabId: String? by mutableStateOf(null)
         private set
 
+    var visibleUrl: String? by mutableStateOf(null)
+        private set
+
+    var onManualNavigationCompleted: ((String) -> Unit)? = null
+
     /** Registers a background page. It remains attached and loaded when another tab is revealed. */
     fun open(tabId: String, url: String): Boolean {
         if (!isSafeWebUrl(url)) return false
@@ -58,6 +63,12 @@ class HiddenWebViewPool(context: Context) {
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
             webViewClient = object : WebViewClient() {
                 private var firstPageFinished = false
+                private var navigatedAfterFirstPage = false
+
+                override fun onPageStarted(view: WebView, pageUrl: String?, favicon: android.graphics.Bitmap?) {
+                    if (firstPageFinished && visibleTabId == tabId) navigatedAfterFirstPage = true
+                    if (visibleTabId == tabId) visibleUrl = pageUrl
+                }
 
                 override fun onPageFinished(view: WebView, pageUrl: String?) {
                     view.evaluateJavascript(spotlightScript) {
@@ -68,8 +79,10 @@ class HiddenWebViewPool(context: Context) {
                     // A navigation after the first settled page is the signal that the user has
                     // continued through the manual sign-in/HITL step. Re-hide it after the new page
                     // has loaded, while leaving the WebView and its session attached in the pool.
-                    if (firstPageFinished && visibleTabId == tabId && pageUrl != requestedUrls[tabId]) {
+                    if (firstPageFinished && navigatedAfterFirstPage && visibleTabId == tabId) {
+                        navigatedAfterFirstPage = false
                         hide(tabId)
+                        onManualNavigationCompleted?.invoke(tabId)
                     }
                     firstPageFinished = true
                 }
@@ -102,11 +115,14 @@ class HiddenWebViewPool(context: Context) {
     fun tab(id: String): WebView? = tabs[id]
 
     /** Injects only into standard username/password fields; it never submits the form. */
-    fun injectCredentials(tabId: String, username: String, password: CharArray, onComplete: (Boolean) -> Unit): Boolean {
+    fun injectCredentials(tabId: String, targetSelector: String, username: String, password: CharArray, onComplete: (Boolean) -> Unit): Boolean {
         val webView = tabs[tabId] ?: return false
         val script = """(function(){
-            const user=document.querySelector('input[autocomplete="username"],input[type="email"],input[name*="user" i]');
-            const pass=document.querySelector('input[autocomplete="current-password"],input[type="password"]');
+            let target;try{target=document.querySelector(${JSONObject.quote(targetSelector)});}catch(_){return false;}
+            if(!target)return false;
+            const form=target.form||target.closest('form')||target;
+            const user=(form.matches&&form.matches('input'))?form:form.querySelector('input[autocomplete="username"],input[type="email"],input[name*="user" i]');
+            const pass=form.querySelector('input[autocomplete="current-password"],input[type="password"]');
             if(!user||!pass)return false;
             const set=(el,value)=>{const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');d.set.call(el,value);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};
             set(user,${JSONObject.quote(username)});set(pass,${JSONObject.quote(String(password))});return true;
@@ -123,11 +139,17 @@ class HiddenWebViewPool(context: Context) {
             webView.isFocusable = false
         }
         spotlightRequests.remove(id)
-        if (visibleTabId == id) visibleTabId = null
+        if (visibleTabId == id) {
+            visibleTabId = null
+            visibleUrl = null
+        }
     }
 
     fun close(id: String) {
-        if (visibleTabId == id) visibleTabId = null
+        if (visibleTabId == id) {
+            visibleTabId = null
+            visibleUrl = null
+        }
         spotlightRequests.remove(id)
         requestedUrls.remove(id)
         tabs.remove(id)?.let { webView ->
@@ -142,6 +164,10 @@ class HiddenWebViewPool(context: Context) {
 
     fun closeAll() = tabs.keys.toList().forEach(::close)
 
+    fun pauseAll() = tabs.values.forEach(WebView::onPause)
+
+    fun resumeAll() = tabs.values.forEach(WebView::onResume)
+
     private fun applySpotlight(tabId: String, request: SpotlightRequest) {
         val script = "window.LaizysinkSpotlight?.show(${JSONObject.quote(request.selector)}, ${JSONObject.quote(request.tooltip)});"
         tabs[tabId]?.evaluateJavascript(script, null)
@@ -150,14 +176,16 @@ class HiddenWebViewPool(context: Context) {
     private fun showTab(webView: WebView) {
         webView.visibility = View.VISIBLE
         webView.alpha = 1f
+        visibleUrl = webView.url
         webView.isClickable = true
         webView.isFocusable = true
         webView.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
     }
 
     private fun isSafeWebUrl(value: String): Boolean {
-        val uri = Uri.parse(value)
-        return uri.scheme.equals("https", ignoreCase = true) || uri.scheme.equals("http", ignoreCase = true)
+        val uri = runCatching { Uri.parse(value) }.getOrNull() ?: return false
+        val safeScheme = uri.scheme.equals("https", ignoreCase = true) || uri.scheme.equals("http", ignoreCase = true)
+        return safeScheme && !uri.host.isNullOrBlank()
     }
 
     private fun matchesDomain(value: String, domain: String): Boolean {
@@ -172,8 +200,8 @@ class HiddenWebViewPool(context: Context) {
 
 /** WebViews stay mounted at alpha zero; hidden ones cannot take pointer input or accessibility focus. */
 @Composable
-fun HiddenWebViews(pool: HiddenWebViewPool, visibleTabId: String?) {
-    Box(Modifier.fillMaxSize()) {
+fun HiddenWebViews(pool: HiddenWebViewPool, visibleTabId: String?, modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxSize()) {
         pool.tabIds.sortedBy { it == visibleTabId }.forEach { id ->
             val visible = id == visibleTabId
             val webView = pool.tab(id) ?: return@forEach

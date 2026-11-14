@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import com.onecaramel.laizysink.HitlTabRequest
 import com.onecaramel.laizysink.security.ZeroTrustKeychain
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
 /** Bridges shared HITL requests to Android WebView and the device-local vault. */
@@ -52,16 +53,19 @@ class AndroidHitlController(private val activity: Activity) {
 
     /** Returns an opaque vault pointer only after biometric approval and successful local injection. */
     suspend fun authenticateAndFill(request: HitlTabRequest): String? = suspendCancellableCoroutine { continuation ->
+        val completed = AtomicBoolean(false)
+        fun resumeOnce(value: String?) {
+            if (completed.compareAndSet(false, true)) continuation.resume(value)
+        }
+
         if (webViewPool.visibleTabId != request.tabId || webViewPool.tab(request.tabId) == null) {
-            val token = continuation.tryResume(null)
-            if (token != null) continuation.completeResume(token)
+            resumeOnce(null)
             return@suspendCancellableCoroutine
         }
 
         val cancellationSignal = keychain.authenticate(activity) { authorized ->
             if (!authorized || !continuation.isActive) {
-                val token = continuation.tryResume(null)
-                if (token != null) continuation.completeResume(token)
+                resumeOnce(null)
                 return@authenticate
             }
 
@@ -75,14 +79,10 @@ class AndroidHitlController(private val activity: Activity) {
                 ) { fieldsFound ->
                     val reference = if (fieldsFound) "vault://${request.domain}" else null
                     if (fieldsFound) manualCompletions.remove(request.tabId)
-                    val token = continuation.tryResume(reference)
-                    if (token != null) continuation.completeResume(token)
+                    resumeOnce(reference)
                 }
             }
-            if (!hasCredentials || !injectionScheduled) {
-                val token = continuation.tryResume(null)
-                if (token != null) continuation.completeResume(token)
-            }
+            if (!hasCredentials || !injectionScheduled) resumeOnce(null)
         }
         continuation.invokeOnCancellation { cancellationSignal?.cancel() }
     }

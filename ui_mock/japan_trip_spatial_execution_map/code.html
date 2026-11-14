@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#0d141d;color:#dce3f0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed-variant":"#653e00","tertiary-fixed":"#ffddb8","primary-fixed":"#e1e0ff","on-background":"#dce3f0","primary":"#c0c1ff","secondary":"#4edea3","surface-container":"#192029","error":"#ffb4ab","secondary-container":"#00a572","background":"#0d141d","surface-tint":"#c0c1ff","inverse-on-surface":"#2a313b","on-secondary":"#003824","primary-fixed-dim":"#c0c1ff","surface-container-highest":"#2e353f","surface-container-high":"#232a34","inverse-surface":"#dce3f0","secondary-fixed-dim":"#4edea3","on-secondary-fixed":"#002113","on-secondary-container":"#00311f","on-secondary-fixed-variant":"#005236","tertiary":"#ffb95f","outline-variant":"#464554","on-primary-fixed":"#07006c","on-surface-variant":"#c7c4d7","surface-container-low":"#151c25","error-container":"#93000a","surface-bright":"#333a44","on-tertiary-container":"#3e2400","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0d141d","on-primary-fixed-variant":"#2f2ebe","on-error-container":"#ffdad6","tertiary-fixed-dim":"#ffb95f","surface-variant":"#2e353f","inverse-primary":"#494bd6","on-primary":"#1000a9","surface":"#0d141d","on-error":"#690005","primary-container":"#8083ff","on-surface":"#dce3f0","surface-container-lowest":"#080f17","on-primary-container":"#0d0096","outline":"#908fa0","tertiary-container":"#ca8100","secondary-fixed":"#6ffbbe"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin-tablet":"1.5rem","gutter":"1rem","gutter-sm":"0.75rem","space-xl":"2rem","space-lg":"1.5rem","space-md":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"1rem"},fontFamily:{"headline-xl":["Inter"],"headline-sm":["Inter"],"headline-md":["Inter"],"label-sm":["Inter"],"body-sm":["Inter"],"label-lg":["Inter"],"body-lg":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-md":["Inter"]},fontSize:{"headline-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0.01em","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-on-surface font-body-md text-body-md flex flex-col min-h-screen selection:bg-primary-container selection:text-on-primary-container pt-safe pb-safe"><main class="flex-1 flex flex-col relative w-full bg-background"><div class="flex flex-col w-full text-on-surface select-none relative overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="w-full flex items-center justify-between px-space-md py-space-sm bg-surface-container-lowest z-30 shrink-0">
+<!-- Back Button -->
+<button aria-label="Go back" class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface active:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<!-- Center Titles -->
+<div class="flex flex-col items-center justify-center text-center">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Japan Trip</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+</div>
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">Execution Map • DAG</span>
+</div>
+<!-- Segmented View Switcher -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-full shadow-inner">
+<button class="px-3 py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" type="button">Simple</button>
+<button class="px-3 py-1.5 rounded-full font-label-md text-label-md bg-primary-container text-on-primary-container shadow-md font-semibold transition-all" type="button">Map</button>
+</div>
+</header>
+<!-- Upper 58%: Spatial Graph Canvas -->
+<section class="relative w-full h-[470px] bg-surface-container-lowest overflow-hidden shrink-0">
+<!-- Dot-Grid Aesthetic Canvas Overlay -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle, #908fa0 1px, transparent 1px); background-size: 20px 20px;"></div>
+<!-- Minimalist Floating Canvas Controls -->
+<div class="absolute top-3 right-3 z-20 flex flex-col items-end gap-1.5 pointer-events-auto">
+<div class="flex flex-col bg-surface-container-low/90 backdrop-blur-md rounded-xl p-1 shadow-lg">
+<button aria-label="Zoom in" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<div class="w-5 h-[1px] bg-surface-container-highest mx-auto my-0.5"></div>
+<button aria-label="Zoom out" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-outline/80 bg-surface-container-lowest/80 px-2 py-0.5 rounded-full backdrop-blur-sm">Drag to pan</span>
+</div>
+<!-- SVG Bezier Connections & Glow Paths -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="indigoBeam" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#8083ff" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#c0c1ff" stop-opacity="0.3"></stop>
+</lineargradient>
+<lineargradient id="subtleLine" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#464554" stop-opacity="0.6"></stop>
+<stop offset="100%" stop-color="#464554" stop-opacity="0.2"></stop>
+</lineargradient>
+</defs>
+<!-- Root to Sibling: Local Transit (Far Left) -->
+<path d="M 206 48 C 140 70, 30 110, 24 165" fill="none" stroke="url(#subtleLine)" stroke-dasharray="3 3" stroke-width="1.5"></path>
+<!-- Root to Sibling: Accommodation (Far Right) -->
+<path d="M 206 48 C 270 70, 370 110, 388 165" fill="none" stroke="url(#subtleLine)" stroke-dasharray="3 3" stroke-width="1.5"></path>
+<!-- Root to Active Node: Find Flights (Center) -->
+<path d="M 206 48 C 206 90, 206 120, 206 185" fill="none" stroke="url(#indigoBeam)" stroke-width="2.5"></path>
+<circle class="animate-ping" cx="206" cy="180" fill="#c0c1ff" r="3" style="animation-duration: 2.5s;"></circle>
+<!-- Active Node to Convergence: Final Booking (Bottom Right) -->
+<path d="M 206 280 C 210 330, 310 340, 340 370" fill="none" stroke="url(#subtleLine)" stroke-dasharray="4 4" stroke-width="1.5"></path>
+<!-- Accommodation to Final Booking -->
+<path d="M 388 230 C 388 290, 360 330, 350 370" fill="none" stroke="url(#subtleLine)" stroke-dasharray="2 3" stroke-width="1.2"></path>
+<!-- Satellite Tether 1 (Left Wing) -->
+<path d="M 125 210 Q 75 205, 55 220" fill="none" stroke="#8083ff" stroke-opacity="0.6" stroke-width="1.2"></path>
+<!-- Satellite Tether 2 (Bottom Left Wing) -->
+<path d="M 140 250 Q 95 285, 78 298" fill="none" stroke="#8083ff" stroke-opacity="0.6" stroke-width="1.2"></path>
+<!-- Satellite Tether 3 (Right Wing) -->
+<path d="M 285 240 Q 320 260, 335 272" fill="none" stroke="#8083ff" stroke-opacity="0.6" stroke-width="1.2"></path>
+</svg>
+<!-- Top Root Anchor Pill -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high shadow-md">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-on-surface font-semibold tracking-wide">Japan Trip</span>
+<span class="font-label-sm text-label-sm text-secondary px-1.5 py-0.2 rounded-full bg-secondary/10">Active</span>
+</div>
+<!-- Sibling Node: Local Transit (Pushed Far Left Edge) -->
+<div class="absolute top-[160px] -left-2 z-10 w-28 p-2 rounded-xl bg-surface-container-low opacity-75 shadow-md flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-outline bg-surface-container px-1 rounded">+2 items</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">Local Transit</span>
+<span class="font-label-sm text-label-sm text-primary">Running</span>
+</div>
+<!-- Sibling Node: Accommodation (Pushed Far Right Edge) -->
+<div class="absolute top-[160px] -right-2 z-10 w-32 p-2 rounded-xl bg-surface-container-low opacity-75 shadow-md flex flex-col gap-1 items-end text-right">
+<div class="flex items-center justify-between w-full">
+<span class="font-label-sm text-label-sm text-outline bg-surface-container px-1 rounded">+2 items</span>
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+</div>
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">Accommodation</span>
+<span class="font-label-sm text-label-sm text-tertiary">Needs Input</span>
+</div>
+<!-- Downstream Sibling: Final Booking (Bottom Right Edge) -->
+<div class="absolute bottom-6 right-3 z-10 px-3 py-2 rounded-xl bg-surface-container-lowest opacity-60 flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+<span class="font-label-md text-label-md text-outline truncate">Final Booking</span>
+<span class="font-label-sm text-label-sm text-outline/80">Waiting</span>
+</div>
+<!-- EXPANDED ACTIVE NODE: Center Pocket with Satellites -->
+<!-- Satellite 1: Top Left -->
+<div class="absolute top-[208px] left-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high shadow-lg">
+<span class="material-symbols-outlined text-secondary text-[14px]">check_circle</span>
+<span class="font-label-sm text-label-sm text-on-surface tracking-tight">ANA & JAL Directs</span>
+</div>
+<!-- Satellite 2: Bottom Left -->
+<div class="absolute top-[292px] left-6 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high shadow-lg">
+<span class="material-symbols-outlined text-secondary text-[14px]">check_circle</span>
+<span class="font-label-sm text-label-sm text-on-surface tracking-tight">Fare Comparison</span>
+</div>
+<!-- Satellite 3: Bottom Right -->
+<div class="absolute top-[265px] right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high shadow-lg">
+<span class="material-symbols-outlined text-primary text-[14px]">lock</span>
+<span class="font-label-sm text-label-sm text-primary font-mono tracking-tight">vault://jal</span>
+</div>
+<!-- Primary Active Card: "Find Flights" -->
+<div class="absolute top-[182px] left-1/2 -translate-x-1/2 z-20 w-48 p-3 rounded-2xl bg-surface-container shadow-2xl relative">
+<!-- Glow Ring Effect -->
+<div class="absolute -inset-0.5 rounded-2xl bg-primary-container opacity-40 blur-sm pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-7 h-7 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">done</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">Expanded</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Find Flights</h2>
+<p class="font-body-sm text-body-sm text-outline">ANA Direct • 2 Guests</p>
+</div>
+<div class="flex items-center justify-between pt-1 font-label-sm text-label-sm">
+<span class="text-secondary font-medium">3 tasks resolved</span>
+<span class="material-symbols-outlined text-primary text-[16px]">touch_app</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Lower 42%: Layered Node Inspector Bottom Sheet -->
+<section class="w-full bg-surface-container rounded-t-3xl shadow-2xl z-30 flex flex-col pt-3 px-space-md pb-6 relative -mt-4">
+<!-- Centered Drag Handle -->
+<div class="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-3 shrink-0"></div>
+<!-- Header Row: Title and Done Badge -->
+<div class="flex items-center justify-between gap-3 mb-3 shrink-0">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[22px]">flight_takeoff</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Find Flights</h3>
+<span class="px-2 py-0.5 rounded-full bg-secondary/15 text-secondary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check</span> Done
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">Execution node: n-77a8 • Exa Web Synthesis</p>
+</div>
+</div>
+<button aria-label="More flight node options" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<!-- Plain-English Scannable Summary Box -->
+<div class="w-full p-3.5 rounded-2xl bg-surface-container-high shadow-sm mb-3 shrink-0">
+<p class="font-body-md text-body-md text-on-surface leading-snug">
+        Picked <span class="font-semibold text-primary">ANA Direct Return</span> (£640/person) for Nov 18–23, 2 guests. Best balance of price and direct flight time.
+      </p>
+<!-- 3 Compact Metrics Pills -->
+<div class="flex items-center gap-2 mt-3 overflow-x-auto">
+<div class="px-2.5 py-1 rounded-lg bg-surface-container-lowest flex items-center gap-1.5 shrink-0">
+<span class="material-symbols-outlined text-secondary text-[14px]">payments</span>
+<span class="font-label-md text-label-md text-secondary font-semibold">£640 / person</span>
+</div>
+<div class="px-2.5 py-1 rounded-lg bg-surface-container-lowest flex items-center gap-1.5 shrink-0">
+<span class="material-symbols-outlined text-outline text-[14px]">schedule</span>
+<span class="font-label-md text-label-md text-on-surface">Direct • 14h 10m</span>
+</div>
+<div class="px-2.5 py-1 rounded-lg bg-surface-container-lowest flex items-center gap-1.5 shrink-0">
+<span class="material-symbols-outlined text-primary text-[14px]">lock_clock</span>
+<span class="font-label-md text-label-md text-primary font-medium">24h Free Hold</span>
+</div>
+</div>
+</div>
+<!-- Visual Anchor: Airline Placeholder Media Banner -->
+<div class="w-full h-24 rounded-2xl overflow-hidden relative mb-3 bg-surface-container-low shrink-0">
+<img class="w-full h-full object-cover opacity-80" data-alt="Modern widebody passenger airplane soaring through deep twilight clouds toward Mount Fuji Japan, cinematic cybernetic blue and warm amber runway horizon lighting, clean minimalist composition, high-end travel aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7Gropqd0L5-tLh0oilrt4UG-s0AoVeghkmqArhbzOMV4uP7-u17JX_DJheQGhrSw4V-aF-pq07x7FvDgncQAhnO9xUDjHPRwLfAUCX7IPBzzt1kk0DzWJ_0kus5D38g_3HE_lu1OAWSMmO7-DlvDoygAT-aJCycWsUX1zTk6t8T_VYBMcZPas96LNp3diLk76WWuqlFqMsPsMppw_vgdam4Vo0WkD75UKzTuEQvQ"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface-container-lowest/90 via-surface-container-lowest/50 to-transparent flex items-center px-4">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary">Flight Confirmation</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">NH 212 • LHR → HND</span>
+<span class="font-body-sm text-body-sm text-outline">Terminal 2 • Departs 19:00</span>
+</div>
+</div>
+</div>
+<!-- Scroll Down Prompt Indicator -->
+<div class="w-full flex items-center justify-center gap-1 py-1 font-label-sm text-label-sm text-outline shrink-0">
+<span>Scroll down for sources, decisions & shared context</span>
+<span class="material-symbols-outlined text-[14px] animate-bounce">expand_more</span>
+</div>
+<!-- Section Header: Sources -->
+<div class="flex items-center justify-between mt-2 mb-2 shrink-0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<h4 class="font-label-lg text-label-lg text-on-surface font-semibold">Verified Exa Sources (2)</h4>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">Live verified</span>
+</div>
+<!-- Peek-Card: Verified Source 1 with smooth bottom fade -->
+<div class="relative w-full rounded-2xl bg-surface-container-high p-3.5 mb-2 overflow-hidden shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-primary-container/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[14px]">public</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">ANA Official Fare Rules</span>
+<span class="font-label-sm text-label-sm text-outline font-mono">ana.co.jp/en/uk/book-flights</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px]">open_in_new</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed line-clamp-2">
+        “Direct London Heathrow to Tokyo Haneda return £640; free 24h fare hold policy activated. Economy Super Value includes two 23kg check-in baggage items.”
+      </p>
+<!-- Bottom Gradient Scrim indicating further scrollable data -->
+<div class="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-surface-container-high to-transparent pointer-events-none"></div>
+</div>
+<!-- Bottom Action Dock for Selected Node -->
+<div class="w-full flex items-center gap-3 pt-2">
+<button class="flex-1 h-12 rounded-full bg-surface-container-highest text-on-surface font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 active:bg-surface-bright transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+<span>Re-evaluate</span>
+</button>
+<button class="flex-1 h-12 rounded-full bg-primary text-on-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 shadow-lg active:opacity-90 transition-opacity" type="button">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Proceed Next</span>
+</button>
+</div>
+</section>
+</div>
+<script>
+  // Simple interactive micro-state: toggling node selection and smooth inspector responses
+  document.addEventListener('DOMContentLoaded', () => {
+    const activeNode = document.querySelector('.relative.z-10');
+    if (activeNode) {
+      activeNode.parentElement.addEventListener('click', () => {
+        activeNode.classList.add('scale-[0.98]');
+        setTimeout(() => activeNode.classList.remove('scale-[0.98]'), 150);
+      });
+    }
+  });
+</script></main></body></html>

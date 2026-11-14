@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0d141d;color:#dce3f0;}body{overscroll-behavior:none;font-family:'Inter',sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-surface": "#dce3f0", "secondary": "#4edea3", "surface-variant": "#2e353f", "inverse-primary": "#494bd6", "error-container": "#93000a", "secondary-fixed-dim": "#4edea3", "surface": "#0d141d", "secondary-fixed": "#6ffbbe", "primary-fixed": "#e1e0ff", "on-secondary": "#003824", "primary": "#c0c1ff", "tertiary-container": "#ca8100", "surface-bright": "#333a44", "surface-container-high": "#232a34", "on-secondary-container": "#00311f", "on-primary-fixed-variant": "#2f2ebe", "surface-container-lowest": "#080f17", "tertiary": "#ffb95f", "surface-container-highest": "#2e353f", "on-tertiary-container": "#3e2400", "on-secondary-fixed-variant": "#005236", "surface-dim": "#0d141d", "surface-tint": "#c0c1ff", "on-primary-container": "#0d0096", "on-tertiary": "#472a00", "on-surface": "#dce3f0", "tertiary-fixed": "#ffddb8", "secondary-container": "#00a572", "surface-container": "#192029", "background": "#0d141d", "inverse-on-surface": "#2a313b", "surface-container-low": "#151c25", "on-tertiary-fixed-variant": "#653e00", "on-error-container": "#ffdad6", "on-error": "#690005", "tertiary-fixed-dim": "#ffb95f", "outline-variant": "#464554", "error": "#ffb4ab", "on-background": "#dce3f0", "outline": "#908fa0", "primary-container": "#8083ff", "primary-fixed-dim": "#c0c1ff", "on-primary": "#1000a9", "on-surface-variant": "#c7c4d7", "on-primary-fixed": "#07006c", "on-tertiary-fixed": "#2a1700", "on-secondary-fixed": "#002113" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-tablet": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-xl": "2rem", "space-lg": "1.5rem", "gutter": "1rem", "space-md": "1rem", "margin": "1rem", "gutter-sm": "0.75rem" }, "fontFamily": { "label-lg": ["Inter"], "headline-sm": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "label-md": ["Inter"], "headline-xl": ["Inter"] }, "fontSize": { "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface min-h-screen text-on-surface antialiased flex flex-col pt-safe pb-safe selection:bg-primary-container selection:text-on-primary-container"><main class="flex-1 flex flex-col w-full bg-surface px-margin"><div class="flex flex-col w-full pb-6 selection:bg-primary-container selection:text-on-primary-container relative">
+<!-- Top Bar / App Brand -->
+<header class="flex items-center justify-between w-full py-space-sm mb-space-md">
+<div class="flex items-center space-x-2">
+<div class="relative flex items-center justify-center">
+<span class="font-headline-lg text-headline-lg tracking-tight text-on-surface">Laizysink</span>
+<span class="absolute -top-0.5 -right-3.5 flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[18px] ml-1.5" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<!-- Active tabs telemetry pill -->
+<div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-surface-container-high shadow-sm cursor-pointer active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-outline text-[16px]">tab</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Tabs Hidden</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-md text-label-md text-secondary font-semibold">2 Active</span>
+</div>
+</header>
+<!-- Background Autonomous Tasks Section -->
+<section class="flex flex-col w-full space-y-2.5 mb-space-lg">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center space-x-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Autonomous Agent Tasks</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-variant text-[10px] font-label-sm text-primary">Live</span>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:underline">Review all</button>
+</div>
+<!-- Card 1: Pending Details -->
+<div class="flex items-center justify-between w-full p-3.5 rounded-xl bg-surface-container-low shadow-sm active:bg-surface-container transition-colors duration-150 cursor-pointer">
+<div class="flex items-center space-x-3 min-w-0">
+<div class="relative flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-surface-container">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary"></span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Japan Trip (Nov 18–23)</span>
+<div class="flex items-center space-x-1.5 mt-0.5">
+<span class="font-body-sm text-body-sm text-tertiary truncate font-medium">Needs trip details to continue</span>
+</div>
+</div>
+</div>
+<div class="flex items-center shrink-0 pl-2">
+<span class="material-symbols-outlined text-outline text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Card 2: Completed Synthesis -->
+<div class="flex items-center justify-between w-full p-3.5 rounded-xl bg-surface-container-low shadow-sm active:bg-surface-container transition-colors duration-150 cursor-pointer">
+<div class="flex items-center space-x-3 min-w-0">
+<div class="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-surface-container">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Helsinki Rent Increase Check</span>
+<div class="flex items-center space-x-1.5 mt-0.5">
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Completed • 4 verified sources</span>
+</div>
+</div>
+</div>
+<div class="flex items-center shrink-0 pl-2">
+<span class="material-symbols-outlined text-outline text-[20px]">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Ambient AI Core Area (Prompt Guidance & Quick Launchers) -->
+<section class="relative flex flex-col items-center justify-center py- space-y-4 my-auto">
+<!-- Glowing AI Telemetry Orb SVG -->
+<div class="relative flex items-center justify-center w-28 h-28 my-2">
+<!-- Glow canvas backdrop -->
+<div class="absolute inset-0 bg-primary-container/20 rounded-full blur-2xl transform scale-125"></div>
+<!-- Living AI SVG Glyph -->
+<svg class="w-24 h-24 relative" fill="none" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<circle class="text-surface-variant" cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="3 4" stroke-width="1.5"></circle>
+<circle class="text-primary-container/25" cx="50" cy="50" fill="currentColor" r="30"></circle>
+<circle class="text-primary" cx="50" cy="50" opacity="0.8" r="22" stroke="currentColor" stroke-width="2"></circle>
+<path class="text-on-surface" d="M50 36V64M36 50H64" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle class="text-primary animate-pulse" cx="50" cy="20" fill="currentColor" r="3"></circle>
+<circle class="text-secondary" cx="78" cy="62" fill="currentColor" r="2.5"></circle>
+<circle class="text-tertiary" cx="24" cy="58" fill="currentColor" r="2"></circle>
+</svg>
+</div>
+<!-- Central Statement -->
+<div class="flex flex-col items-center text-center px-4">
+<h1 class="font-headline-lg text-headline-lg font-semibold text-on-surface tracking-tight">
+        What should I handle for you?
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-[290px] leading-relaxed">
+        Browser tabs stay hidden while I research, compare, and prepare everything in the background.
+      </p>
+</div>
+<!-- Suggested Proactive Action Chips -->
+<div class="flex flex-wrap items-center justify-center gap-2 pt-2 max-w-sm px-2">
+<button class="flex items-center space-x-1.5 px-3.5 py-2 rounded-full bg-surface-container-high active:bg-surface-bright text-on-surface shadow-sm transition-all duration-150 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined text-[15px] text-primary">flight_takeoff</span>
+<span class="font-label-md text-label-md">Research cheap flights</span>
+</button>
+<button class="flex items-center space-x-1.5 px-3.5 py-2 rounded-full bg-surface-container-high active:bg-surface-bright text-on-surface shadow-sm transition-all duration-150 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined text-[15px] text-secondary">summarize</span>
+<span class="font-label-md text-label-md">Summarize open articles</span>
+</button>
+<button class="flex items-center space-x-1.5 px-3.5 py-2 rounded-full bg-surface-container-high active:bg-surface-bright text-on-surface shadow-sm transition-all duration-150 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined text-[15px] text-tertiary">local_shipping</span>
+<span class="font-label-md text-label-md">Track package delivery</span>
+</button>
+</div>
+</section>
+<!-- Sticky Bottom Ergonomic Control Dock -->
+<div class="w-full mt-auto pt-4 flex flex-col items-center">
+<!-- Active Context Floating Preview Tile (Discreet) -->
+<div class="w-full mb-3 flex items-center justify-between px-3 py-2 rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex items-center space-x-2 truncate">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Connected: Private Sandbox Mesh · Encrypted</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px] shrink-0">shield</span>
+</div>
+<!-- Omnibar Floating Dock -->
+<div class="relative w-full flex items-center h-14 px-2 rounded-full bg-surface-container-high shadow-lg">
+<!-- Attachment Trigger -->
+<button class="flex items-center justify-center w-11 h-11 rounded-full text-outline hover:text-on-surface active:bg-surface-bright transition-colors shrink-0">
+<span class="material-symbols-outlined text-[22px]">attach_file</span>
+</button>
+<!-- Input Display Slot -->
+<div class="flex-1 flex items-center px-2 cursor-text">
+<span class="font-body-md text-body-md text-outline select-none">Ask Laizysink anything...</span>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center space-x-1 shrink-0">
+<!-- Send Action -->
+<button class="flex items-center justify-center w-10 h-10 rounded-full text-outline hover:text-on-surface active:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+</button>
+<!-- Electric Voice Input Beacon Button -->
+<button class="relative flex items-center justify-center w-11 h-11 rounded-full bg-primary text-on-primary shadow-md active:scale-95 transition-transform overflow-hidden">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">mic</span>
+<!-- Soft specular glow -->
+<div class="absolute inset-0 bg-white opacity-10 rounded-full"></div>
+</button>
+</div>
+</div>
+<!-- Gesture Bar Guard Indicator -->
+<div class="w-32 h-1 bg-surface-variant rounded-full mt-4 mb-1"></div>
+</div>
+</div>
+<script>
+  // Micro-interaction delight for chip tap selection
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Subtle haptic ripple mimic
+      btn.style.transform = 'scale(0.96)';
+      setTimeout(() => {
+        btn.style.transform = '';
+      }, 120);
+    });
+  });
+</script></main></body></html>

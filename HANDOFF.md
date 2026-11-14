@@ -20,7 +20,7 @@ The workspace already existed as a Kotlin Toolchain project. It was not an empty
 
 - Removed the synthetic `seed_exa` setup citation. Exa retrieval now requires `EXA_API_KEY`; without it the research branch fails instead of presenting non-live content as a source.
 - Added `backend/config.py` to load the ignored `backend/.env` automatically while preserving process environment overrides. Added `python-dotenv` to backend requirements.
-- Expanded `backend/.env.example` for active Exa/Gemini credentials and reserved ElevenLabs/Tiger Data settings. The reserved settings are not integrated into runtime code yet.
+- Expanded `backend/.env` for active Exa/Gemini credentials and reserved ElevenLabs/Tiger Data settings. The reserved settings are not integrated into runtime code yet.
 - Documented local provider setup and the real-data/no-fake-citation policy in `README.md` and `AGENTS.md`.
 - Added disjoint role briefs `WORKER_1.md` through `WORKER_5.md` with exclusive path ownership and small, regular Git commit requirements.
 - No provider API calls, mock-data checks, tests, or builds were run in this follow-up. Live API verification is pending user-supplied credentials and direction to verify.
@@ -71,4 +71,4 @@ Set-Location backend
 ..\\.venv\\Scripts\\python.exe -m uvicorn main:app --reload
 ```
 
-The backend uses `EXA_API_KEY` and `GEMINI_API_KEY`; copy `backend/.env.example` to `backend/.env` for local secrets (that file is ignored). Do not stage API keys or clipboard captures.
+The backend uses `EXA_API_KEY` and `GEMINI_API_KEY`; copy `backend/.env` to `backend/.env` for local secrets (that file is ignored). Do not stage API keys or clipboard captures.

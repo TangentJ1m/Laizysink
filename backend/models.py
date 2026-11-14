@@ -1,4 +1,4 @@
-﻿from datetime import date, datetime
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Any
 
@@ -93,6 +93,12 @@ class TemporalMemoryItem(ContractModel):
     event_end_date: date | None = None
     created_at: datetime
     freshness_tag: FreshnessTag
+
+
+class ResolveBarrier(ContractModel):
+    task_id: str
+    barrier_id: str
+    answer: str
 
 
 class TaskGraph(ContractModel):

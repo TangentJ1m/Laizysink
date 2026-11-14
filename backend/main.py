@@ -3,10 +3,10 @@ import os
 from collections import defaultdict
 
 from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from dag_engine import create_graph, resolve_barrier
-from models import Event, EventType, TaskGraph
+from models import Event, EventType, ResolveBarrier, TaskGraph
 from voice import router as voice_router
 
 app = FastAPI(title="Laizysink API")
@@ -77,12 +77,24 @@ async def task_socket(websocket: WebSocket, task_id: str):
                 task_id = graph.id
                 subscribers[task_id].add(websocket)
             elif message.get("type") == "RESOLVE_BARRIER":
+                try:
+                    request = ResolveBarrier.model_validate({
+                        "task_id": message.get("task_id"),
+                        "barrier_id": message.get("barrier_id"),
+                        "answer": message.get("answer"),
+                    })
+                except ValidationError:
+                    await websocket.send_json({"type": "ERROR", "task_id": task_id, "payload": {"message": "invalid RESOLVE_BARRIER payload"}})
+                    continue
+                if request.task_id != task_id:
+                    await websocket.send_json({"type": "ERROR", "task_id": task_id, "payload": {"message": "task_id does not match this WebSocket"}})
+                    continue
                 graph = tasks.get(task_id)
                 if graph is None:
                     await websocket.send_json({"type": "ERROR", "task_id": task_id, "payload": {"message": "task not found"}})
                     continue
                 try:
-                    graph = await resolve_barrier(graph, message.get("barrier_id", ""), str(message.get("answer", "")), broadcast)
+                    graph = await resolve_barrier(graph, request.barrier_id, request.answer, broadcast)
                 except ValueError as exc:
                     await websocket.send_json({"type": "ERROR", "task_id": task_id, "payload": {"message": str(exc)}})
                     continue

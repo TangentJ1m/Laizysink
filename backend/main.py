@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import os
 from collections import defaultdict
 
@@ -6,7 +6,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket, WebSock
 from pydantic import BaseModel
 
 from dag_engine import create_graph, resolve_barrier
-from models import Event, TaskGraph
+from models import Event, EventType, TaskGraph
 from voice import router as voice_router
 
 app = FastAPI(title="Laizysink API")
@@ -21,6 +21,10 @@ class CreateTask(BaseModel):
 
 
 async def broadcast(event: Event) -> None:
+    if event.type == EventType.TASK_COMPLETED:
+        snapshot = event.payload.get("task_graph")
+        if snapshot is not None:
+            tasks[event.task_id] = TaskGraph.model_validate(snapshot)
     for socket in list(subscribers[event.task_id]):
         try:
             await socket.send_json(event.model_dump(mode="json"))
@@ -78,12 +82,11 @@ async def task_socket(websocket: WebSocket, task_id: str):
                     await websocket.send_json({"type": "ERROR", "task_id": task_id, "payload": {"message": "task not found"}})
                     continue
                 try:
-                    graph = resolve_barrier(graph, message.get("barrier_id", ""), str(message.get("answer", "")))
+                    graph = await resolve_barrier(graph, message.get("barrier_id", ""), str(message.get("answer", "")), broadcast)
                 except ValueError as exc:
                     await websocket.send_json({"type": "ERROR", "task_id": task_id, "payload": {"message": str(exc)}})
                     continue
                 tasks[task_id] = graph
-                await websocket.send_json({"type": "TASK_COMPLETED", "task_id": task_id, "payload": graph.model_dump(mode="json")})
     except WebSocketDisconnect:
         subscribers[task_id].discard(websocket)
 

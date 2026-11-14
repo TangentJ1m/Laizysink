@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://laizysink.dev/contracts/schema.json",
-  "title": "Laizysink API and WebSocket contracts",
+  "title": "Laizysink REST and WebSocket contract",
+  "description": "Canonical public wire contract. WebSocket events use {type, task_id, payload}; client commands are flat objects with a top-level type. Legacy DAG callbacks are internal and are not wire events.",
   "$defs": {
     "Status": {
       "type": "string",
@@ -10,130 +11,68 @@
         "RUNNING",
         "BLOCKED_USER",
         "COMPLETED",
+        "PARTIAL",
         "STALE",
         "FAILED"
       ]
     },
-    "Freshness": {
+    "FreshnessTag": {
+      "type": "string",
+      "enum": ["USED", "STALE_QUERIED", "ENTIRELY_STALE"]
+    },
+    "WorkTaskType": {
       "type": "string",
       "enum": [
-        "USED",
-        "STALE_QUERIED",
-        "ENTIRELY_STALE"
+        "DECOMPOSE",
+        "EXA_SEARCH",
+        "DATA_BARRIER",
+        "MERGE",
+        "HITL_BROWSER",
+        "KEYCHAIN_REF"
       ]
     },
     "WorkTask": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "parent_node_id",
-        "task_type",
-        "label",
-        "status"
-      ],
+      "required": ["id", "parent_node_id", "task_type", "label", "status"],
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "parent_node_id": {
-          "type": "string"
-        },
-        "task_type": {
-          "type": "string",
-          "enum": [
-            "DECOMPOSE",
-            "EXA_SEARCH",
-            "DATA_BARRIER",
-            "MERGE",
-            "HITL_BROWSER",
-            "KEYCHAIN_REF"
-          ]
-        },
-        "label": {
-          "type": "string"
-        },
-        "status": {
-          "$ref": "#/$defs/Status"
-        }
+        "id": {"type": "string", "minLength": 1},
+        "parent_node_id": {"type": "string", "minLength": 1},
+        "task_type": {"$ref": "#/$defs/WorkTaskType"},
+        "label": {"type": "string"},
+        "status": {"$ref": "#/$defs/Status"}
       }
     },
-    "ExaSource": {
+    "ExaCitation": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "domain",
-        "url",
-        "title",
-        "highlighted_quote",
-        "selected"
-      ],
+      "required": ["id", "domain", "url", "title", "highlighted_quote", "selected"],
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "domain": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri"
-        },
-        "title": {
-          "type": "string"
-        },
-        "favicon_url": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "format": "uri"
-        },
-        "highlighted_quote": {
-          "type": "string"
-        },
-        "verification_badge": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "selected": {
-          "type": "boolean"
-        },
-        "rejection_reason": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
+        "id": {"type": "string", "minLength": 1},
+        "domain": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "title": {"type": "string"},
+        "favicon_url": {"type": ["string", "null"], "format": "uri"},
+        "highlighted_quote": {"type": "string"},
+        "provider": {"const": "exa"},
+        "provider_request_id": {"type": ["string", "null"]},
+        "retrieved_at": {"type": ["string", "null"], "format": "date-time"},
+        "verification_badge": {"type": ["string", "null"]},
+        "selected": {"type": "boolean"},
+        "rejection_reason": {"type": ["string", "null"]}
       }
     },
     "KeychainRef": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "domain",
-        "vault_ref"
-      ],
+      "required": ["domain", "vault_ref"],
       "properties": {
-        "domain": {
-          "type": "string"
-        },
-        "vault_ref": {
-          "type": "string",
-          "pattern": "^vault://"
-        },
-        "masked_username": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
+        "domain": {"type": "string", "minLength": 1},
+        "vault_ref": {"type": "string", "pattern": "^vault://"},
+        "masked_username": {"type": ["string", "null"]}
       }
     },
-    "WorkNode": {
+    "SubtaskNode": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -151,56 +90,26 @@
         "sources"
       ],
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "task_id": {
-          "type": "string"
-        },
-        "title": {
-          "type": "string"
-        },
-        "status": {
-          "$ref": "#/$defs/Status"
-        },
-        "freshness_tag": {
-          "$ref": "#/$defs/Freshness"
-        },
-        "parent_ids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "plain_summary": {
-          "type": "string"
-        },
-        "highlight_chips": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
+        "id": {"type": "string", "minLength": 1},
+        "task_id": {"type": "string", "minLength": 1},
+        "title": {"type": "string"},
+        "status": {"$ref": "#/$defs/Status"},
+        "freshness_tag": {"$ref": "#/$defs/FreshnessTag"},
+        "parent_ids": {"type": "array", "items": {"type": "string"}},
+        "plain_summary": {"type": "string"},
+        "highlight_chips": {"type": "array", "items": {"type": "string"}},
         "inherited_context": {
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
+          "additionalProperties": {"type": "string"}
         },
-        "decision_rationale": {
-          "type": "string"
-        },
+        "decision_rationale": {"type": "string"},
         "work_tasks": {
           "type": "array",
-          "items": {
-            "$ref": "#/$defs/WorkTask"
-          }
+          "items": {"$ref": "#/$defs/WorkTask"}
         },
         "sources": {
           "type": "array",
-          "items": {
-            "$ref": "#/$defs/ExaSource"
-          }
+          "items": {"$ref": "#/$defs/ExaCitation"}
         }
       }
     },
@@ -216,210 +125,267 @@
         "allow_other_voice_text"
       ],
       "properties": {
-        "barrier_id": {
-          "type": "string"
-        },
-        "task_id": {
-          "type": "string"
-        },
-        "source_node_id": {
-          "type": "string"
-        },
-        "badge_text": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "question": {
-          "type": "string"
-        },
+        "barrier_id": {"type": "string", "minLength": 1},
+        "task_id": {"type": "string", "minLength": 1},
+        "source_node_id": {"type": "string", "minLength": 1},
+        "badge_text": {"type": ["string", "null"]},
+        "question": {"type": "string"},
         "options": {
           "type": "array",
           "minItems": 3,
           "maxItems": 4,
-          "items": {
-            "type": "string"
-          }
+          "items": {"type": "string"}
         },
-        "allow_other_voice_text": {
-          "type": "boolean"
-        }
+        "allow_other_voice_text": {"type": "boolean"}
       }
     },
     "TemporalMemoryItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "task_id",
-        "key",
-        "value",
-        "freshness_tag",
-        "created_at"
-      ],
+      "required": ["id", "task_id", "key", "value", "created_at", "freshness_tag"],
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "task_id": {
-          "type": "string"
-        },
-        "key": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "event_start_date": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "format": "date"
-        },
-        "event_end_date": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "format": "date"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "freshness_tag": {
-          "$ref": "#/$defs/Freshness"
-        }
+        "id": {"type": "string", "minLength": 1},
+        "task_id": {"type": "string", "minLength": 1},
+        "key": {"type": "string"},
+        "value": {"type": "string"},
+        "event_start_date": {"type": ["string", "null"], "format": "date"},
+        "event_end_date": {"type": ["string", "null"], "format": "date"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "freshness_tag": {"$ref": "#/$defs/FreshnessTag"}
       }
     },
     "TaskGraph": {
       "type": "object",
+      "description": "Full authoritative TaskState snapshot. TaskGraph is retained as the implementation and Kotlin model name.",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "prompt",
-        "status",
-        "nodes",
-        "barriers",
-        "memory"
-      ],
+      "required": ["id", "prompt", "status", "nodes"],
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "prompt": {
-          "type": "string"
-        },
-        "status": {
-          "$ref": "#/$defs/Status"
-        },
+        "id": {"type": "string", "minLength": 1},
+        "prompt": {"type": "string"},
+        "status": {"$ref": "#/$defs/Status"},
         "nodes": {
           "type": "array",
-          "items": {
-            "$ref": "#/$defs/WorkNode"
-          }
+          "items": {"$ref": "#/$defs/SubtaskNode"}
         },
         "barriers": {
           "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataBarrier"
-          }
+          "items": {"$ref": "#/$defs/DataBarrier"},
+          "default": []
         },
         "memory": {
           "type": "array",
-          "items": {
-            "$ref": "#/$defs/TemporalMemoryItem"
-          }
+          "items": {"$ref": "#/$defs/TemporalMemoryItem"},
+          "default": []
         }
       }
     },
-    "Event": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "type",
-        "task_id",
-        "payload"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "TASK_CREATED",
-            "NODE_UPDATED",
-            "DATA_BARRIER",
-            "HITL_BROWSER",
-            "TASK_COMPLETED",
-            "ERROR"
-          ]
-        },
-        "task_id": {
-          "type": "string"
-        },
-        "payload": {
-          "type": "object"
-        }
-      }
-    },
+    "TaskState": {"$ref": "#/$defs/TaskGraph"},
     "CreateTask": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "prompt"
-      ],
+      "required": ["prompt"],
       "properties": {
-        "prompt": {
-          "type": "string",
-          "minLength": 1
+        "prompt": {"type": "string", "minLength": 1},
+        "attachments": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
         },
-        "use_active_memory": {
-          "type": "boolean",
-          "default": true
-        }
+        "use_active_memory": {"type": "boolean", "default": true},
+        "request_id": {"type": ["string", "null"]}
       }
     },
     "ResolveBarrier": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "task_id",
-        "barrier_id",
-        "answer"
-      ],
+      "required": ["task_id", "barrier_id", "answer"],
       "properties": {
-        "task_id": {
-          "type": "string"
-        },
-        "barrier_id": {
-          "type": "string"
-        },
-        "answer": {
-          "type": "string"
-        }
+        "task_id": {"type": "string", "minLength": 1},
+        "barrier_id": {"type": "string", "minLength": 1},
+        "answer": {"type": "string", "minLength": 1},
+        "request_id": {"type": ["string", "null"]}
       }
     },
     "KeychainAuthComplete": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "task_id",
-        "tab_id",
-        "keychain_ref"
-      ],
+      "required": ["task_id", "tab_id", "keychain_ref"],
       "properties": {
-        "task_id": {
-          "type": "string"
-        },
-        "tab_id": {
-          "type": "string"
-        },
-        "keychain_ref": {
-          "type": "string",
-          "pattern": "^vault://"
-        }
+        "task_id": {"type": "string", "minLength": 1},
+        "tab_id": {"type": "string", "minLength": 1},
+        "keychain_ref": {"type": "string", "pattern": "^vault://"},
+        "request_id": {"type": ["string", "null"]}
       }
+    },
+    "ExpireMemory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["memory_id"],
+      "properties": {
+        "memory_id": {"type": "string", "minLength": 1},
+        "request_id": {"type": ["string", "null"]}
+      }
+    },
+    "HitlTabRequired": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "tab_id", "url", "target_selector", "tooltip_text", "domain"],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "tab_id": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "target_selector": {"type": "string", "minLength": 1},
+        "tooltip_text": {"type": "string"},
+        "domain": {"type": "string", "minLength": 1}
+      }
+    },
+    "CommandResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command_type", "accepted"],
+      "properties": {
+        "command_type": {"type": "string"},
+        "accepted": {"type": "boolean"},
+        "message": {"type": ["string", "null"]},
+        "request_id": {"type": ["string", "null"]}
+      },
+      "if": {
+        "properties": {"accepted": {"const": false}}
+      },
+      "then": {"required": ["message"]}
+    },
+    "CreateTaskCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "prompt"],
+      "properties": {
+        "type": {"const": "CREATE_TASK"},
+        "prompt": {"type": "string", "minLength": 1},
+        "attachments": {"type": "array", "items": {"type": "string"}, "default": []},
+        "use_active_memory": {"type": "boolean", "default": true},
+        "request_id": {"type": ["string", "null"]}
+      }
+    },
+    "ResolveBarrierCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "task_id", "barrier_id", "answer"],
+      "properties": {
+        "type": {"const": "RESOLVE_BARRIER"},
+        "task_id": {"type": "string", "minLength": 1},
+        "barrier_id": {"type": "string", "minLength": 1},
+        "answer": {"type": "string", "minLength": 1},
+        "request_id": {"type": ["string", "null"]}
+      }
+    },
+    "KeychainAuthCompleteCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "task_id", "tab_id", "keychain_ref"],
+      "properties": {
+        "type": {"const": "KEYCHAIN_AUTH_COMPLETE"},
+        "task_id": {"type": "string", "minLength": 1},
+        "tab_id": {"type": "string", "minLength": 1},
+        "keychain_ref": {"type": "string", "pattern": "^vault://"},
+        "request_id": {"type": ["string", "null"]}
+      }
+    },
+    "ExpireMemoryCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "memory_id"],
+      "properties": {
+        "type": {"const": "EXPIRE_MEMORY"},
+        "memory_id": {"type": "string", "minLength": 1},
+        "request_id": {"type": ["string", "null"]}
+      }
+    },
+    "ClientCommand": {
+      "oneOf": [
+        {"$ref": "#/$defs/CreateTaskCommand"},
+        {"$ref": "#/$defs/ResolveBarrierCommand"},
+        {"$ref": "#/$defs/KeychainAuthCompleteCommand"},
+        {"$ref": "#/$defs/ExpireMemoryCommand"}
+      ]
+    },
+    "TaskStateSyncEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "task_id", "payload"],
+      "properties": {
+        "type": {"const": "TASK_STATE_SYNC"},
+        "task_id": {"type": "string", "minLength": 1},
+        "payload": {"$ref": "#/$defs/TaskGraph"}
+      }
+    },
+    "BarrierTriggeredEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "task_id", "payload"],
+      "properties": {
+        "type": {"const": "BARRIER_TRIGGERED"},
+        "task_id": {"type": "string", "minLength": 1},
+        "payload": {"$ref": "#/$defs/DataBarrier"}
+      }
+    },
+    "HitlTabRequiredEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "task_id", "payload"],
+      "properties": {
+        "type": {"const": "HITL_TAB_REQUIRED"},
+        "task_id": {"type": "string", "minLength": 1},
+        "payload": {"$ref": "#/$defs/HitlTabRequired"}
+      }
+    },
+    "CommandResultEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "task_id", "payload"],
+      "properties": {
+        "type": {"const": "COMMAND_RESULT"},
+        "task_id": {"type": "string", "minLength": 1},
+        "payload": {"$ref": "#/$defs/CommandResult"}
+      }
+    },
+    "ServerEvent": {
+      "oneOf": [
+        {"$ref": "#/$defs/TaskStateSyncEvent"},
+        {"$ref": "#/$defs/BarrierTriggeredEvent"},
+        {"$ref": "#/$defs/HitlTabRequiredEvent"},
+        {"$ref": "#/$defs/CommandResultEvent"}
+      ]
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detail"],
+      "properties": {"detail": {"type": "string"}}
+    }
+  },
+  "x-rest-endpoints": {
+    "POST /api/tasks": {
+      "requestBody": {"$ref": "#/$defs/CreateTask"},
+      "responseBody": {"$ref": "#/$defs/TaskGraph"},
+      "errorBody": {"$ref": "#/$defs/ErrorResponse"}
+    },
+    "GET /api/tasks/{task_id}": {
+      "responseBody": {"$ref": "#/$defs/TaskGraph"},
+      "errorBody": {"$ref": "#/$defs/ErrorResponse"}
+    }
+  },
+  "x-websocket": {
+    "path": "/ws/tasks/{task_id}",
+    "createPath": "/ws/tasks/new",
+    "clientCommands": {"$ref": "#/$defs/ClientCommand"},
+    "serverEvents": {"$ref": "#/$defs/ServerEvent"},
+    "semantics": {
+      "request_id": "Optional client correlation token. The server echoes it in COMMAND_RESULT when supplied.",
+      "create": "CREATE_TASK is sent to /ws/tasks/new. The server returns TASK_STATE_SYNC with the full snapshot and actual task id.",
+      "attach": "Connecting to /ws/tasks/{existing_task_id} returns an immediate full TASK_STATE_SYNC snapshot before later task events.",
+      "snapshot": "TASK_STATE_SYNC.payload is the TaskGraph object itself; its id equals the event task_id.",
+      "barrier": "BARRIER_TRIGGERED.payload is the complete DataBarrier; it is followed by a full TASK_STATE_SYNC.",
+      "command_result": "COMMAND_RESULT.payload reports command_type and accepted; rejected commands include message. It is an acceptance result, not completion of the asynchronous task."
     }
   }
 }

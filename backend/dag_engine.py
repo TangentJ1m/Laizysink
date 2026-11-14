@@ -519,6 +519,9 @@ def _build_graph(run: TaskRun) -> TaskGraph:
     elif active or successful + failed < len(run.specs):
         merge_status = NodeStatus.RUNNING if any(value == NodeStatus.RUNNING for value in run.runtime_statuses.values()) else NodeStatus.WAITING
         graph_status = merge_status
+    elif failed and successful:
+        merge_status = NodeStatus.PARTIAL
+        graph_status = NodeStatus.PARTIAL
     elif failed:
         merge_status = NodeStatus.FAILED
         graph_status = NodeStatus.FAILED
@@ -552,6 +555,11 @@ def _build_graph(run: TaskRun) -> TaskGraph:
     if unresolved_barriers:
         merge_summary += f" {len(barriers)} required input barrier(s) remain open."
         merge_rationale += " Only branches that depend on unanswered required inputs are held."
+    if merge_status == NodeStatus.PARTIAL:
+        merge_rationale += (
+            f" This is a partial result: {successful} of {len(run.specs)} required subtasks completed and "
+            f"{failed} failed. Available citations are retained, but the graph does not claim full completion."
+        )
     if failed and merge_status == NodeStatus.FAILED:
         merge_rationale += " The graph remains failed until every required research branch completes successfully."
 
@@ -604,7 +612,7 @@ async def _publish_state(run: TaskRun, *, include_barriers: bool = True) -> Task
     if include_barriers:
         for barrier in graph.barriers:
             await _emit(run, Event(type=EventType.DATA_BARRIER, task_id=run.task_id, payload={"barrier": barrier.model_dump(mode="json")}))
-    if graph.status in (NodeStatus.COMPLETED, NodeStatus.FAILED):
+    if graph.status in (NodeStatus.COMPLETED, NodeStatus.PARTIAL, NodeStatus.FAILED):
         await _emit(run, Event(type=EventType.TASK_COMPLETED, task_id=run.task_id, payload={"task_graph": graph.model_dump(mode="json")}))
     return graph
 

@@ -2,6 +2,7 @@
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.websocket.WebSockets
 
 class JVMPlatform: Platform {
     override val name: String = "Java ${System.getProperty("java.version")}"
@@ -14,5 +15,7 @@ actual fun getPlatform(): Platform = JVMPlatform()
 
 
 
-actual fun createPlatformHttpClient(): HttpClient = HttpClient(CIO)
+actual fun createPlatformHttpClient(): HttpClient = HttpClient(CIO) {
+    install(WebSockets)
+}
 

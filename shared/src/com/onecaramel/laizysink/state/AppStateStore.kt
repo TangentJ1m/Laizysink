@@ -1,6 +1,7 @@
 package com.onecaramel.laizysink.state
 
 import com.onecaramel.laizysink.getPlatform
+import com.onecaramel.laizysink.HitlTabRequest
 import com.onecaramel.laizysink.network.LaizysinkSocketClient
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
@@ -15,24 +16,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-
-data class HitlTabRequest(
-    val taskId: String,
-    val tabId: String,
-    val url: String,
-    val targetSelector: String,
-    val tooltipText: String,
-    val domain: String,
-)
 
 data class BackgroundTabInfo(
     val taskId: String,
@@ -121,12 +111,12 @@ class BackgroundWebViewPool {
 }
 
 /** Memory is projected from server-owned task graphs; the client does not invent facts. */
-class TemporalMemoryStore(taskStore: TaskDagStore) {
+class TemporalMemoryStore(taskStore: TaskDagStore, scope: CoroutineScope) {
     private val _items = MutableStateFlow<List<TemporalMemoryItem>>(emptyList())
     val items: StateFlow<List<TemporalMemoryItem>> = _items.asStateFlow()
 
     init {
-        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+        scope.launch {
             taskStore.tasks.collect { tasks ->
                 _items.value = tasks.values.flatMap { it.memory }.distinctBy { it.id }.sortedByDescending { it.created_at }
             }
@@ -139,6 +129,7 @@ class AppStateStore(
     httpClient: HttpClient,
     private val webSocketUrl: String = getPlatform().backendWebSocketUrl,
 ) {
+    private val httpClient = httpClient
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val json = Json { ignoreUnknownKeys = true }
     private val socketClient = LaizysinkSocketClient(httpClient, json)
@@ -147,7 +138,7 @@ class AppStateStore(
 
     val taskDagStore = TaskDagStore()
     val backgroundWebViewPool = BackgroundWebViewPool()
-    val temporalMemoryStore = TemporalMemoryStore(taskDagStore)
+    val temporalMemoryStore = TemporalMemoryStore(taskDagStore, scope)
 
     private val _connection = MutableStateFlow(ConnectionState())
     val connection: StateFlow<ConnectionState> = _connection.asStateFlow()
@@ -157,6 +148,13 @@ class AppStateStore(
 
     private val _lastError = MutableStateFlow<String?>(null)
     val lastError: StateFlow<String?> = _lastError.asStateFlow()
+
+    fun close() {
+        sessionJob?.cancel()
+        scope.coroutineContext[Job]?.cancel()
+        outgoing.close()
+        httpClient.close()
+    }
 
     fun createTask(prompt: String, attachments: List<String> = emptyList(), useActiveMemory: Boolean = true) {
         val cleaned = prompt.trim()

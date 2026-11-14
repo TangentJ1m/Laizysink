@@ -1,6 +1,14 @@
 package com.onecaramel.laizysink
 
-import com.onecaramel.laizysink.state.HitlTabRequest
+
+data class HitlTabRequest(
+    val taskId: String,
+    val tabId: String,
+    val url: String,
+    val targetSelector: String,
+    val tooltipText: String,
+    val domain: String,
+)
 
 /** Native actions required to reveal a HITL page, authenticate locally, or open a cited URL. */
 data class AppPlatformActions(

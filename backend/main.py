@@ -49,6 +49,10 @@ class ExpireMemoryCommand(BaseModel):
     memory_id: str
 
 
+class InvalidCommandPayload(ValueError):
+    pass
+
+
 def _event_type(event: Event) -> str:
     value = event.type
     return str(getattr(value, "value", value))
@@ -89,7 +93,7 @@ def _command_result(
 
 def _request_id(message: dict) -> str | None:
     value = message.get("request_id")
-    return value if isinstance(value, str) and 0 < len(value) <= 128 else None
+    return value if isinstance(value, str) else None
 
 
 async def _emit(
@@ -229,7 +233,22 @@ async def _send_result(
     )
 
 
-def _command_request(model_type: type[BaseModel], message: dict, fields: tuple[str, ...]):
+def _command_request(
+    model_type: type[BaseModel],
+    message: dict,
+    fields: tuple[str, ...],
+    expected_type: str,
+):
+    allowed_fields = set(fields) | {"type", "request_id"}
+    unexpected_fields = sorted(set(message) - allowed_fields)
+    if unexpected_fields:
+        names = ", ".join(unexpected_fields)
+        raise InvalidCommandPayload(f"unexpected command field(s): {names}")
+    if message.get("type") != expected_type:
+        raise InvalidCommandPayload("command type does not match the payload")
+    request_id = message.get("request_id")
+    if request_id is not None and not isinstance(request_id, str):
+        raise InvalidCommandPayload("request_id must be a string or null")
     values = {field: message[field] for field in fields if field in message}
     return model_type.model_validate(values)
 
@@ -292,7 +311,15 @@ async def _attach_socket(websocket: WebSocket, task_id: str) -> bool:
 
 async def _handle_create_command(websocket: WebSocket, message: dict, request_id: str | None) -> None:
     try:
-        request = _command_request(CreateTask, message, ("prompt", "attachments", "use_active_memory"))
+        request = _command_request(
+            CreateTask,
+            message,
+            ("prompt", "attachments", "use_active_memory"),
+            "CREATE_TASK",
+        )
+    except InvalidCommandPayload as exc:
+        await _send_result(websocket, "new", "CREATE_TASK", False, str(exc), request_id)
+        return
     except ValidationError:
         await _send_result(websocket, "new", "CREATE_TASK", False, "invalid CREATE_TASK payload", request_id)
         return
@@ -346,7 +373,15 @@ async def _handle_create_command(websocket: WebSocket, message: dict, request_id
 
 async def _handle_barrier_command(websocket: WebSocket, task_id: str, message: dict, request_id: str | None) -> None:
     try:
-        request = _command_request(ResolveBarrier, message, ("task_id", "barrier_id", "answer"))
+        request = _command_request(
+            ResolveBarrier,
+            message,
+            ("task_id", "barrier_id", "answer"),
+            "RESOLVE_BARRIER",
+        )
+    except InvalidCommandPayload as exc:
+        await _send_result(websocket, task_id, "RESOLVE_BARRIER", False, str(exc), request_id)
+        return
     except ValidationError:
         await _send_result(websocket, task_id, "RESOLVE_BARRIER", False, "invalid RESOLVE_BARRIER payload", request_id)
         return
@@ -380,7 +415,11 @@ async def _handle_keychain_command(websocket: WebSocket, task_id: str, message: 
             KeychainAuthCompleteCommand,
             message,
             ("task_id", "tab_id", "keychain_ref"),
+            "KEYCHAIN_AUTH_COMPLETE",
         )
+    except InvalidCommandPayload as exc:
+        await _send_result(websocket, task_id, "KEYCHAIN_AUTH_COMPLETE", False, str(exc), request_id)
+        return
     except ValidationError:
         await _send_result(websocket, task_id, "KEYCHAIN_AUTH_COMPLETE", False, "invalid KEYCHAIN_AUTH_COMPLETE payload", request_id)
         return
@@ -421,7 +460,10 @@ async def _handle_keychain_command(websocket: WebSocket, task_id: str, message: 
 
 async def _handle_expire_memory(websocket: WebSocket, task_id: str, message: dict, request_id: str | None) -> None:
     try:
-        request = _command_request(ExpireMemoryCommand, message, ("memory_id",))
+        request = _command_request(ExpireMemoryCommand, message, ("memory_id",), "EXPIRE_MEMORY")
+    except InvalidCommandPayload as exc:
+        await _send_result(websocket, task_id, "EXPIRE_MEMORY", False, str(exc), request_id)
+        return
     except ValidationError:
         await _send_result(websocket, task_id, "EXPIRE_MEMORY", False, "invalid EXPIRE_MEMORY payload", request_id)
         return

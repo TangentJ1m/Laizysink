@@ -9,7 +9,12 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().with_name(".env"), override=False)
 
 
-def get_api_key(name: str) -> str | None:
-    """Return a configured secret without exposing it in application responses."""
+def get_setting(name: str) -> str | None:
+    """Return a configured setting without exposing it in application responses."""
     value = os.getenv(name, "").strip()
     return value or None
+
+
+def get_api_key(name: str) -> str | None:
+    """Return a configured API key without exposing it in application responses."""
+    return get_setting(name)

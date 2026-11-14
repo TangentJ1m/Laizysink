@@ -49,7 +49,7 @@ async def create_graph(
 ) -> TaskGraph:
     task_id = task_id or f"task_{uuid4().hex[:10]}"
     display_prompt = display_prompt or prompt
-    inherited_memory = memory_items if memory_items is not None else memory_store.reuse(task_id, prompt)
+    inherited_memory = memory_items if memory_items is not None else await memory_store.reuse(task_id, prompt)
     branches = await plan(prompt)
     branch_ids = [f"node_{uuid4().hex[:8]}" for _ in branches]
     nodes = [
@@ -160,7 +160,7 @@ async def resolve_barrier(graph: TaskGraph, barrier_id: str, answer: str, on_eve
     if not answer:
         raise ValueError("barrier answer must not be blank")
 
-    memory_item = memory_store.add(graph.id, "trip_constraints", answer)
+    memory_item = await memory_store.add(graph.id, "trip_constraints", answer)
     memory_items = [*graph.memory, memory_item]
     resumed_prompt = f"{graph.prompt}\n\nUser-provided constraints: {answer}"
     return await create_graph(

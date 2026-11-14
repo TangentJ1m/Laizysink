@@ -39,6 +39,8 @@ uvicorn main:app --reload
 
 The backend loads `backend/.env` automatically. Environment variables already set by your shell or deployment take precedence. `EXA_API_KEY` is required for live research; without it, research branches fail rather than emitting sample or fabricated citations. `GEMINI_API_KEY` enables Gemini planning and `/api/transcribe`; if it is absent, planning uses the local deterministic query plan and transcription returns a setup error.
 
-`ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, and the `TIGERDATA_*` entries are reserved for future integrations and are not used by the current code. Never commit `backend/.env` or paste secrets into source control, worker briefs, or chat. The checked-in `.env.example` contains names only; supply credentials from the provider accounts when you are ready to enable each integration.
+`TIGERDATA_DATABASE_URL` enables durable temporal memory in Tiger Cloud/PostgreSQL. On the first memory operation the backend creates a `laizysink_temporal_memory` table and index, then stores/reuses/ages/expires task context there. The value should be the connection URI from Tiger Cloud with TLS enabled (`sslmode=require`). If it is absent, the backend uses bounded in-process memory. Database errors are surfaced rather than silently switching to volatile storage.
+
+`ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` remain reserved; ElevenLabs is not currently called by the app. Never commit `backend/.env` or Tiger Cloud `*-credentials.txt` files, or paste secrets into source control, worker briefs, or chat. Keep provider credentials in ignored local configuration and supply them from the provider accounts when you are ready to enable each integration.
 
 No provider credentials or live calls are needed to launch the service. Before using a provider integration, populate the matching local setting with a real credential. Do not represent placeholder configuration as a connected integration.

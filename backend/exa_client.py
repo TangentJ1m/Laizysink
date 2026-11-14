@@ -1,8 +1,12 @@
-﻿import os
+﻿from urllib.parse import urlparse
 
 from exa_py import AsyncExa
 
 from config import get_api_key
+
+
+class ExaConfigurationError(RuntimeError):
+    """Raised when live Exa retrieval cannot run because configuration is missing."""
 
 
 def _field(result, name, default=None):
@@ -14,7 +18,7 @@ def _field(result, name, default=None):
 async def search(query: str) -> list[dict]:
     key = get_api_key("EXA_API_KEY")
     if not key:
-        raise RuntimeError("EXA_API_KEY is not configured; live Exa research cannot run")
+        raise ExaConfigurationError("EXA_API_KEY is not configured; live Exa research cannot run")
 
     client = AsyncExa(api_key=key)
     response = await client.search_and_contents(query, type="auto", num_results=5, highlights=True)
@@ -22,7 +26,7 @@ async def search(query: str) -> list[dict]:
     citations = []
     for index, result in enumerate(results):
         url = _field(result, "url", "")
-        domain = url.split("/")[2] if "://" in url else ""
+        domain = urlparse(url).hostname or ""
         highlights = _field(result, "highlights", []) or []
         citations.append({
             "id": f"exa_{index}",

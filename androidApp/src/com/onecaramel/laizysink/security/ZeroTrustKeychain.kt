@@ -8,7 +8,9 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import java.security.KeyStore
-import java.util.concurrent.Executor
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.CodingErrorAction
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -20,29 +22,85 @@ class ZeroTrustKeychain(context: Context) {
 
     fun save(domain: String, username: String, password: CharArray) {
         try {
-            preferences.edit().putString("$domain.username", encrypt(username.toByteArray())).putString("$domain.password", encrypt(String(password).toByteArray())).apply()
+            preferences.edit()
+                .putString("$domain.username", encrypt(username.toByteArray(Charsets.UTF_8)))
+                .putString("$domain.password", encrypt(password))
+                .apply()
         } finally {
             password.fill('\u0000')
         }
     }
 
-    fun maskedUsername(domain: String): String? = decrypt(preferences.getString("$domain.username", null))?.toString(Charsets.UTF_8)?.let { value ->
-        val at = value.indexOf('@')
-        if (at < 1) "••••" else "••••" + value.substring(at)
+    fun maskedUsername(domain: String): String? {
+        val bytes = decrypt(preferences.getString("$domain.username", null)) ?: return null
+        return try {
+            val value = bytes.toString(Charsets.UTF_8)
+            val at = value.indexOf('@')
+            if (at < 1) "••••" else "••••" + value.substring(at)
+        } finally {
+            bytes.fill(0)
+        }
     }
 
     fun withCredentials(domain: String, inject: (String, CharArray) -> Unit): Boolean {
-        val username = decrypt(preferences.getString("$domain.username", null))?.toString(Charsets.UTF_8) ?: return false
-        val password = decrypt(preferences.getString("$domain.password", null))?.toString(Charsets.UTF_8) ?: return false
-        val chars = password.toCharArray()
-        return try { inject(username, chars); true } finally { chars.fill('\u0000') }
+        val usernameBytes = decrypt(preferences.getString("$domain.username", null)) ?: return false
+        val passwordBytes = decrypt(preferences.getString("$domain.password", null)) ?: run {
+            usernameBytes.fill(0)
+            return false
+        }
+        val username = usernameBytes.toString(Charsets.UTF_8)
+        val passwordChars = try {
+            decodeChars(passwordBytes)
+        } catch (_: Exception) {
+            usernameBytes.fill(0)
+            passwordBytes.fill(0)
+            return false
+        }
+        usernameBytes.fill(0)
+        passwordBytes.fill(0)
+        return try {
+            inject(username, passwordChars)
+            true
+        } finally {
+            passwordChars.fill('\u0000')
+        }
     }
 
     private fun encrypt(plain: ByteArray): String {
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey())
-        val encrypted = cipher.doFinal(plain)
-        return Base64.encodeToString(cipher.iv + encrypted, Base64.NO_WRAP)
+        return try {
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey())
+            val encrypted = cipher.doFinal(plain)
+            Base64.encodeToString(cipher.iv + encrypted, Base64.NO_WRAP)
+        } finally {
+            plain.fill(0)
+        }
+    }
+
+    private fun encrypt(chars: CharArray): String {
+        val encoded = Charsets.UTF_8.newEncoder()
+            .onMalformedInput(CodingErrorAction.REPORT)
+            .onUnmappableCharacter(CodingErrorAction.REPORT)
+            .encode(CharBuffer.wrap(chars))
+        val bytes = ByteArray(encoded.remaining())
+        encoded.get(bytes)
+        return try {
+            encrypt(bytes)
+        } finally {
+            bytes.fill(0)
+            if (encoded.hasArray()) encoded.array().fill(0)
+        }
+    }
+
+    private fun decodeChars(bytes: ByteArray): CharArray {
+        val decoded = Charsets.UTF_8.newDecoder()
+            .onMalformedInput(CodingErrorAction.REPORT)
+            .onUnmappableCharacter(CodingErrorAction.REPORT)
+            .decode(ByteBuffer.wrap(bytes))
+        val chars = CharArray(decoded.remaining())
+        decoded.get(chars)
+        if (decoded.hasArray()) decoded.array().fill('\u0000')
+        return chars
     }
 
     private fun decrypt(encoded: String?): ByteArray? = try {
@@ -64,16 +122,28 @@ class ZeroTrustKeychain(context: Context) {
         }.generateKey()
     }
 
-    fun authenticate(activity: Activity, onAuthorized: () -> Unit) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
+    fun authenticate(activity: Activity, onResult: (Boolean) -> Unit): CancellationSignal? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            onResult(false)
+            return null
+        }
+        val cancellationSignal = CancellationSignal()
         val prompt = android.hardware.biometrics.BiometricPrompt.Builder(activity)
             .setTitle("Unlock Laizysink Keychain")
             .setSubtitle("Credentials stay on this device")
             .setNegativeButton("Cancel", activity.mainExecutor) { _, _ -> }
             .build()
-        prompt.authenticate(CancellationSignal(), activity.mainExecutor, object : android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationSucceeded(result: android.hardware.biometrics.BiometricPrompt.AuthenticationResult) = onAuthorized()
-        })
+        return try {
+            prompt.authenticate(cancellationSignal, activity.mainExecutor, object : android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: android.hardware.biometrics.BiometricPrompt.AuthenticationResult) = onResult(true)
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) = onResult(false)
+            })
+            cancellationSignal
+        } catch (_: Exception) {
+            onResult(false)
+            null
+        }
     }
 
     private companion object { const val KEY_ALIAS = "laizysink_credentials_v1" }

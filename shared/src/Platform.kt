@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 
 interface Platform {
     val name: String
+    /** Creation WebSocket URL, ending in `/ws/tasks/new`; the transport substitutes task IDs on attach. */
     val backendWebSocketUrl: String
 }
 

@@ -317,6 +317,24 @@ def _unresolved_inputs(run: TaskRun, plan_id: str) -> list[str]:
     ]
 
 
+def _waiting_on_required_input(run: TaskRun, plan_id: str, seen: set[str] | None = None) -> bool:
+    """Return whether this branch has a prerequisite held by an open barrier."""
+    if _unresolved_inputs(run, plan_id):
+        return True
+    if seen is None:
+        seen = set()
+    if plan_id in seen:
+        return False
+    seen.add(plan_id)
+    spec = run.spec_by_id.get(plan_id)
+    if spec is None:
+        return False
+    return any(
+        dependency not in run.outcomes and _waiting_on_required_input(run, dependency, seen)
+        for dependency in spec.depends_on
+    )
+
+
 def _barriers(run: TaskRun) -> list[DataBarrier]:
     result: list[DataBarrier] = []
     blockers = run.input_blockers
@@ -738,6 +756,9 @@ async def _execute_ready_branches(run: TaskRun) -> None:
     # explicit graph failure, rather than a task that can wait forever.
     for spec in run.specs:
         if spec.plan_id in run.outcomes or _unresolved_inputs(run, spec.plan_id):
+            continue
+        if _waiting_on_required_input(run, spec.plan_id):
+            run.runtime_statuses[spec.plan_id] = NodeStatus.WAITING
             continue
         run.outcomes[spec.plan_id] = BranchOutcome(
             status=NodeStatus.FAILED,

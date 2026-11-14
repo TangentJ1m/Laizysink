@@ -30,7 +30,15 @@ When initialized in a blank repository, the lead should scaffold the canonical c
 1. **Wave 0 ? Foundation:** Lock `/contracts/schema.json`, Pydantic models (`/backend/models.py`), and Kotlin serialization models (`/shared/src/com/onecaramel/laizysink/state/Models.kt`). Keep `project.yaml` and module descriptors declarative.
 2. **Wave 1 ? Parallel Work:** Use isolated Air Git Worktrees with the ownership above. If worktrees are unavailable, work sequentially in this checkout; do not imply shared-folder edits are isolated.
 3. **Wave 2 ? Integration:** Wire Android/Desktop Ktor clients to FastAPI `/ws/tasks/{task_id}` and verify prompt, parallel Exa branches, data barriers, citations, and HITL handoff.
-4. **Wave 3 ? Hardening:** Enforce 8-second branch timeouts, graceful missing-key handling, transcription recovery, and seeded demo coverage.
+4. **Wave 3 ? Hardening:** Enforce 8-second branch timeouts, graceful missing-key handling, and transcription recovery. Never use seeded or fabricated data as live provider output.
+
+### Worker Git Workflow
+
+Worker briefs are in `WORKER_1.md` through `WORKER_5.md`. Each worker must work in a separate Git worktree and branch with the exclusive path ownership listed in its brief. Check `git status --short --branch` at start and before commits. Commit each coherent, reviewable slice with a focused message; do not accumulate all work into one macro-commit or amend another worker's commit. Integrate only reviewed commits. Do not claim worktrees are isolated if workers share one checkout.
+
+### Real Provider and Credential Policy
+
+Use real provider APIs for provider verification, never mock responses, seeded examples, or fabricated citations. Never run verification or provider calls unless the user/lead has requested them. Keep credentials in ignored `backend/.env` or the process environment; never commit or log secrets. Exa citations must originate from Exa. A Gemini planning fallback may create search queries, but it must never stand in for Exa evidence. `ELEVENLABS_*` and `TIGERDATA_*` settings are reserved until their integrations are explicitly implemented.
 
 ---
 
@@ -66,7 +74,8 @@ laizysink/
 ?   ??? src/main.kt
 ??? backend/
 ?   ??? requirements.txt
-?   ??? .env.example
+?   ??? config.py                  # Local backend/.env loading; no secret values
+?   ??? .env.example               # Names-only provider configuration template
 ?   ??? main.py
 ?   ??? models.py
 ?   ??? planner.py
@@ -273,6 +282,6 @@ All 6 screens must share an identical dark-mode aesthetic:
 Before completing the build, **Agent 0 (Swarm Lead)** must verify:
 1. **Zero Compilation Errors:** Both `uvicorn main:app` (Python 3.11+) and `kotlin build` (Kotlin Multiplatform Toolchain; Android and Desktop JVM targets, with optional additional configured targets) on Temurin JDK 25 build cleanly with zero missing imports or unresolved references.
 2. **Contract Parity:** Every JSON key emitted by `backend/models.py` deserializes cleanly into `shared/src/com/onecaramel/laizysink/state/Models.kt`.
-3. **Live Exa Grounding:** Submitting a brand-new arbitrary prompt (e.g., *"Check if a 12% rent increase in Helsinki is legal"* or *"Find a vegan anniversary dinner open tonight"*) spawns parallel branches, calls Exa's live API, and renders clickable URLs with highlighted quotes.
+3. **Live Exa Grounding:** With a user-provided `EXA_API_KEY`, submitting an arbitrary prompt spawns parallel branches, calls Exa's live API, and renders clickable URLs with highlighted quotes. Never substitute mock/seed data if credentials are unavailable; report that live verification is pending.
 4. **Spatial Map Progressive Disclosure:** Tapping different Subtask Nodes on `App.kt (`ExecutionMap` composable)` smoothly collapses the previous node, expands the new node's satellite Work-Tasks, pushes siblings outward, and updates the 2-tier scrollable bottom inspector sheet.
 5. **Zero-Trust Keychain & Spotlight:** Triggering `HITL_TAB_REQUIRED` unhides the `WebView`, injects `spotlight.js` to blur everything except the target form, and completes biometric autofill without transmitting raw passwords over WebSocket.

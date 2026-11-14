@@ -4,6 +4,8 @@ import os
 
 from google import genai
 
+from config import get_api_key
+
 
 def _fallback_plan(prompt: str) -> list[dict[str, str]]:
     return [
@@ -14,7 +16,7 @@ def _fallback_plan(prompt: str) -> list[dict[str, str]]:
 
 
 async def plan(prompt: str) -> list[dict[str, str]]:
-    key = os.getenv("GEMINI_API_KEY")
+    key = get_api_key("GEMINI_API_KEY")
     if not key:
         return _fallback_plan(prompt)
     client = genai.Client(api_key=key)

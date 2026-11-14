@@ -2,6 +2,8 @@
 
 from exa_py import AsyncExa
 
+from config import get_api_key
+
 
 def _field(result, name, default=None):
     if isinstance(result, dict):
@@ -10,9 +12,9 @@ def _field(result, name, default=None):
 
 
 async def search(query: str) -> list[dict]:
-    key = os.getenv("EXA_API_KEY")
+    key = get_api_key("EXA_API_KEY")
     if not key:
-        return [{"id": "seed_exa", "domain": "exa.ai", "url": "https://exa.ai", "title": "Live web research unavailable", "favicon_url": None, "highlighted_quote": "Set EXA_API_KEY to retrieve live evidence. This result is a setup notice, not a verified citation.", "verification_badge": "Setup required", "selected": True, "rejection_reason": None}]
+        raise RuntimeError("EXA_API_KEY is not configured; live Exa research cannot run")
 
     client = AsyncExa(api_key=key)
     response = await client.search_and_contents(query, type="auto", num_results=5, highlights=True)

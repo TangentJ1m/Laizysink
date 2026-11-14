@@ -16,6 +16,15 @@ The workspace already existed as a Kotlin Toolchain project. It was not an empty
 
 ## Work completed
 
+### Current follow-up
+
+- Removed the synthetic `seed_exa` setup citation. Exa retrieval now requires `EXA_API_KEY`; without it the research branch fails instead of presenting non-live content as a source.
+- Added `backend/config.py` to load the ignored `backend/.env` automatically while preserving process environment overrides. Added `python-dotenv` to backend requirements.
+- Expanded `backend/.env.example` for active Exa/Gemini credentials and reserved ElevenLabs/Tiger Data settings. The reserved settings are not integrated into runtime code yet.
+- Documented local provider setup and the real-data/no-fake-citation policy in `README.md` and `AGENTS.md`.
+- Added disjoint role briefs `WORKER_1.md` through `WORKER_5.md` with exclusive path ownership and small, regular Git commit requirements.
+- No provider API calls, mock-data checks, tests, or builds were run in this follow-up. Live API verification is pending user-supplied credentials and direction to verify.
+
 - Reworked `AGENTS.md` around the current Kotlin Toolchain modules and source paths, Temurin 25, Air Worktree orchestration, backend contract paths, and the existing six-screen `App.kt` prototype.
 - Added `contracts/schema.json` with schema definitions for task graphs, nodes, citations, barriers, keychain references, memory items, requests, and WebSocket events.
 - Added matching Pydantic v2 models in `backend/models.py` and Kotlin `@Serializable` models in `shared/src/com/onecaramel/laizysink/state/Models.kt`.
@@ -44,7 +53,7 @@ The workspace already existed as a Kotlin Toolchain project. It was not an empty
 4. **Wire Android HITL.** `HiddenWebViewPool` and `HiddenWebViews` exist but are not mounted by `MainActivity` or navigation. Connect `HITL_BROWSER` events to the visible WebView, load spotlight JS, call clear/re-hide on page changes, and use the local vault only after biometric success.
 5. **Security caveat.** `ZeroTrustKeychain` currently implements custom AES-GCM encrypted SharedPreferences backed by Android Keystore rather than the AndroidX `EncryptedSharedPreferences` class. Its biometric method is a utility, not a complete credential injection/authentication flow. Review char-array/String handling before production.
 6. **Implement desktop platform functionality.** There are no Desktop browser/keychain/audio actuals yet. The requested plan asks for desktop equivalents; the current app only has a JVM Ktor engine.
-7. **Improve Exa/Gemini resilience.** Exa missing-key behavior returns an explicit setup notice; no realistic seeded Tokyo/Helsinki source fixture exists. Gemini fallback is deterministic query decomposition. Add appropriate demo fixtures clearly marked as seeded, and do not label them live verified.
+7. **Improve Exa/Gemini resilience.** Exa missing-key behavior now fails research branches rather than returning a synthetic citation. Gemini fallback remains deterministic query decomposition only; it does not provide Exa evidence. Verify real Exa and Gemini behavior only when credentials are supplied and live verification is requested.
 8. **Contract parity.** Add an automated parity test for `contracts/schema.json`, `backend/models.py`, and the Kotlin serialization models. Check that JSON Schema and Pydantic required/default fields agree.
 9. **Voice and API polish.** Add tests for `/api/transcribe`, task REST routes, missing credentials, stale memory TTL, and WebSocket barrier resolution. Consider CORS and platform-specific WebSocket URL configuration before deployment.
 10. **Product documentation.** `AGENTS.md` still contains extensive aspirational behavior specifications that the prototype does not yet implement. Keep the actual path structure accurate and clearly distinguish requirements from implemented state.

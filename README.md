@@ -32,9 +32,13 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r backend/requirements.txt
 Copy-Item backend/.env.example backend/.env
-# Set EXA_API_KEY and GEMINI_API_KEY in backend/.env when available.
+# Edit backend/.env locally and provide your real provider credentials.
 cd backend
 uvicorn main:app --reload
 ```
 
-Run backend workflow tests from the repository root with `.venv\Scripts\python.exe -m pytest backend`.
+The backend loads `backend/.env` automatically. Environment variables already set by your shell or deployment take precedence. `EXA_API_KEY` is required for live research; without it, research branches fail rather than emitting sample or fabricated citations. `GEMINI_API_KEY` enables Gemini planning and `/api/transcribe`; if it is absent, planning uses the local deterministic query plan and transcription returns a setup error.
+
+`ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, and the `TIGERDATA_*` entries are reserved for future integrations and are not used by the current code. Never commit `backend/.env` or paste secrets into source control, worker briefs, or chat. The checked-in `.env.example` contains names only; supply credentials from the provider accounts when you are ready to enable each integration.
+
+No provider credentials or live calls are needed to launch the service. Before using a provider integration, populate the matching local setting with a real credential. Do not represent placeholder configuration as a connected integration.

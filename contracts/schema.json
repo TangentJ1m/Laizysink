@@ -1,0 +1,425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laizysink.dev/contracts/schema.json",
+  "title": "Laizysink API and WebSocket contracts",
+  "$defs": {
+    "Status": {
+      "type": "string",
+      "enum": [
+        "WAITING",
+        "RUNNING",
+        "BLOCKED_USER",
+        "COMPLETED",
+        "STALE",
+        "FAILED"
+      ]
+    },
+    "Freshness": {
+      "type": "string",
+      "enum": [
+        "USED",
+        "STALE_QUERIED",
+        "ENTIRELY_STALE"
+      ]
+    },
+    "WorkTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "parent_node_id",
+        "task_type",
+        "label",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_node_id": {
+          "type": "string"
+        },
+        "task_type": {
+          "type": "string",
+          "enum": [
+            "DECOMPOSE",
+            "EXA_SEARCH",
+            "DATA_BARRIER",
+            "MERGE",
+            "HITL_BROWSER",
+            "KEYCHAIN_REF"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        }
+      }
+    },
+    "ExaSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "domain",
+        "url",
+        "title",
+        "highlighted_quote",
+        "selected"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "favicon_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "highlighted_quote": {
+          "type": "string"
+        },
+        "verification_badge": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "selected": {
+          "type": "boolean"
+        },
+        "rejection_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "KeychainRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "vault_ref"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "vault_ref": {
+          "type": "string",
+          "pattern": "^vault://"
+        },
+        "masked_username": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "WorkNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "task_id",
+        "title",
+        "status",
+        "freshness_tag",
+        "parent_ids",
+        "plain_summary",
+        "highlight_chips",
+        "inherited_context",
+        "decision_rationale",
+        "work_tasks",
+        "sources"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        },
+        "freshness_tag": {
+          "$ref": "#/$defs/Freshness"
+        },
+        "parent_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "plain_summary": {
+          "type": "string"
+        },
+        "highlight_chips": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inherited_context": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "decision_rationale": {
+          "type": "string"
+        },
+        "work_tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkTask"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExaSource"
+          }
+        }
+      }
+    },
+    "DataBarrier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "barrier_id",
+        "task_id",
+        "source_node_id",
+        "question",
+        "options",
+        "allow_other_voice_text"
+      ],
+      "properties": {
+        "barrier_id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "source_node_id": {
+          "type": "string"
+        },
+        "badge_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "question": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 4,
+          "items": {
+            "type": "string"
+          }
+        },
+        "allow_other_voice_text": {
+          "type": "boolean"
+        }
+      }
+    },
+    "TemporalMemoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "task_id",
+        "key",
+        "value",
+        "freshness_tag",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "event_start_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "event_end_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "freshness_tag": {
+          "$ref": "#/$defs/Freshness"
+        }
+      }
+    },
+    "TaskGraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "prompt",
+        "status",
+        "nodes",
+        "barriers",
+        "memory"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkNode"
+          }
+        },
+        "barriers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataBarrier"
+          }
+        },
+        "memory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TemporalMemoryItem"
+          }
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "task_id",
+        "payload"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "TASK_CREATED",
+            "NODE_UPDATED",
+            "DATA_BARRIER",
+            "HITL_BROWSER",
+            "TASK_COMPLETED",
+            "ERROR"
+          ]
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "object"
+        }
+      }
+    },
+    "CreateTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt"
+      ],
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "use_active_memory": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "ResolveBarrier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "barrier_id",
+        "answer"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "barrier_id": {
+          "type": "string"
+        },
+        "answer": {
+          "type": "string"
+        }
+      }
+    },
+    "KeychainAuthComplete": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "tab_id",
+        "keychain_ref"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "tab_id": {
+          "type": "string"
+        },
+        "keychain_ref": {
+          "type": "string",
+          "pattern": "^vault://"
+        }
+      }
+    }
+  }
+}

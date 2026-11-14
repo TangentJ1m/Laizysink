@@ -1,0 +1,17 @@
+﻿product: jvm/app
+
+dependencies:
+  - //shared
+  - $compose.desktop.currentOs
+  - $compose.preview
+  - $libs.kotlinx.coroutines.swing
+  - $libs.logback.classic
+
+settings:
+  compose: enabled
+  jvm:
+    jdk:
+      version: 25
+      distributions: [ temurin ]
+    mainClass: com.onecaramel.laizysink.MainKt
+

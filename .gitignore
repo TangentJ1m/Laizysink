@@ -1,0 +1,34 @@
+*.iml
+.kotlin
+build/
+.DS_Store
+captures
+**/module.xcodeproj/*
+!**/module.xcodeproj/project.pbxproj
+!**/module.xcodeproj/xcshareddata/
+!**/module.xcodeproj/project.xcworkspace/
+**/xcshareddata/WorkspaceSettings.xcsettings
+xcuserdata
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+
+# Local IDE and agent state
+.idea/
+.codex/
+
+# Build and tool caches
+.gradle/
+**/out/
+**/.amper/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local pasted clipboard captures
+PowerToys_Paste_*.txt
